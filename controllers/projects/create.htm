@@ -1,0 +1,70 @@
+<?php Block::put('breadcrumb') ?>
+    <ul>
+        <li><a href="<?= Backend::url('awme/octomanage/projects') ?>">Projects</a></li>
+        <li><?= e($this->pageTitle) ?></li>
+    </ul>
+<?php Block::endPut() ?>
+
+<script>
+    function randPassword(n)
+    {
+        if(!n){n = 16;}
+
+        var text = '';
+        var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+        for(var i=0; i < n; i++)
+        {text += possible.charAt(Math.floor(Math.random() * possible.length));}
+
+        return text;
+    }
+
+    $(document).ready(function(){
+        $( "#Form-field-Project-password" ).click(function() {
+            $("#Form-field-Project-password").val(randPassword());
+            $("#Form-field-Project-ftppsw").val($("#Form-field-Project-password").val());
+        });
+    });
+</script>
+
+<?php if (!$this->fatalError): ?>
+
+    <?= Form::open(['class' => 'layout']) ?>
+
+        <div class="layout-row">
+            <?= $this->formRender() ?>
+        </div>
+
+        <div class="form-buttons">
+            <div class="loading-indicator-container">
+                <button
+                    type="submit"
+                    data-request="onSave"
+                    data-hotkey="ctrl+s, cmd+s"
+                    data-load-indicator="Creating Project..."
+                    class="btn btn-primary">
+                    Create
+                </button>
+                <button
+                    type="button"
+                    data-request="onSave"
+                    data-request-data="close:1"
+                    data-hotkey="ctrl+enter, cmd+enter"
+                    data-load-indicator="Creating Project..."
+                    class="btn btn-default">
+                    Create and Close
+                </button>
+                <span class="btn-text">
+                    or <a href="<?= Backend::url('awme/octomanage/projects') ?>">Cancel</a>
+                </span>
+            </div>
+        </div>
+
+    <?= Form::close() ?>
+
+<?php else: ?>
+
+    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
+    <p><a href="<?= Backend::url('awme/octomanage/projects') ?>" class="btn btn-default">Return to projects list</a></p>
+
+<?php endif ?>

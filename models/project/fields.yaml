@@ -1,0 +1,135 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+fields:
+    id:
+        label: id
+        hidden: true
+    name:
+        label: Name
+        span: auto
+        required: true
+        attributes:
+                maxlength: "45"
+    company:
+        label: Company
+        span: auto
+        required: true
+        type: text
+        attributes:
+                maxlength: "45"
+
+tabs:
+    fields:
+        domains:
+            tab: Installation
+            label: Domains
+            placeholder: "domain1.com|domain2.com|domain3.com"
+            span: full
+            required: true
+        theme:
+            tab: Installation
+            label: Theme
+            type: radio
+            span: auto
+            required: true
+            options:
+                vanilla: [RainLab.Vanilla]
+                squad: [FabricioRabelo.Squad]
+                flat: [Responsiv.Flat]
+
+        git:
+            tab: Git
+            label: Git Repository
+            type: radio
+            span: auto
+            required: true
+            options:
+                github: [Github]
+                gitlab: [GitLab]
+                bitbucket: [Bitbucket]
+
+        plugins:
+            tab: Installation
+            label: Plugins
+            type: checkboxlist
+            span: auto
+            options:
+                user: RainLab.User
+                blog: RainLab.Blog
+                slider: RainLab.Slider
+        host:
+            tab: Database
+            label: Host
+            default: localhost
+            span: auto
+            required: true
+            attributes:
+                maxlength: "16"
+        database:
+            tab: Database
+            label: Database
+            span: auto
+            required: true
+            placeholder: awme_database
+            attributes:
+                maxlength: "16"
+        username:
+            tab: Database
+            label: User
+            span: auto
+            required: true
+            maxlength: '16'
+            placeholder: awme_username
+            preset:
+                field: database
+                type: slug
+            attributes:
+                maxlength: "16"
+        password:
+            tab: Database
+            label: Password
+            span: auto
+            required: true
+            attributes:
+                maxlength: "16"
+        ftphost:
+            tab: Ftp
+            label: Host
+            default: awebsome.me
+            span: auto
+            required: true
+            attributes:
+                maxlength: "16"
+        directory:
+            tab: Ftp
+            label: Directory
+            span: auto
+            placeholder: awme_directory_name
+            required: true
+            preset:
+                field: database
+                type: slug
+            attributes:
+                maxlength: "16"
+        ftpuser:
+            tab: Ftp
+            label: User
+            span: auto
+            required: true
+            placeholder: awme_username
+            preset:
+                field: database
+                type: slug
+            attributes:
+                maxlength: "16"
+        ftppsw:
+            tab: Ftp
+            label: Password
+            span: auto
+            required: true
+            preset:
+                field: password
+            attributes:
+                maxlength: "16"

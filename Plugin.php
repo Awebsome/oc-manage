@@ -8,6 +8,7 @@ use Backend;
 
 use AWME\Engine\Models\SshSettings;
 use AWME\Engine\Models\EngineSettings;
+use AWME\OctoManage\Models\OctoSettings;
 use Illuminate\Foundation\AliasLoader;
 
 /**
@@ -15,6 +16,10 @@ use Illuminate\Foundation\AliasLoader;
  */
 class Plugin extends PluginBase
 {
+
+    public $require = [
+        'AWME.Engine',
+    ];
 
     /**
      * Returns information about this plugin.
@@ -51,8 +56,8 @@ class Plugin extends PluginBase
         Config::set('filesystems.disks.engine.driver',          'local');
         Config::set('filesystems.disks.engine.root',            base_path());
         
-        Config::set('filesystems.disks.clients.driver',          'local');
-        Config::set('filesystems.disks.clients.root',            EngineSettings::get('projects_path'));
+        Config::set('filesystems.disks.clients.driver',         'local');
+        Config::set('filesystems.disks.clients.root',           OctoSettings::get('projects_path'));
 
         Config::set('database.connections.engine.host',         EngineSettings::get('host'));
         Config::set('database.connections.engine.port',         EngineSettings::get('port'));
@@ -79,6 +84,7 @@ class Plugin extends PluginBase
     public function registerPermissions()
     {
         return [
+            'awme.octomanage.settings'   => ['tab' => 'OctoManage','label' => 'OctoManage Settings'],
             'awme.octomanage.read_projects'   => ['tab' => 'OctoManage','label' => 'View Projects']
         ];
     }
@@ -89,21 +95,45 @@ class Plugin extends PluginBase
      */
     public function registerNavigation()
     {
-        return [
-            'OctoManage' => [
-                'label'       => 'OctoManage',
-                'url'         => Backend::url('awme/octomanage/project'),
-                'icon'        => 'icon-puzzle-piece',
-                'order'       => 995,
+         return [
+            'octomanage' => [
+                'label'       => OctoSettings::get('octo_label','OctoManage'),
+                'url'         => Backend::url('awme/octomanage/projects'),
+                'icon'        => 'icon-leaf',
+                'order'       => 999,
 
                 'sideMenu' => [
-                    'projects' => [
+
+                    'projects' =>   [
                         'label'       => 'Projects',
                         'icon'        => 'icon-sitemap',
                         'url'         => Backend::url('awme/octomanage/projects'),
                         'permissions' => ['awme.octomanage.read_projects']
-                    ],
+                    ]
+
                 ]
+            ]
+        ];
+    }
+
+    /**
+     * Register Backend Plugin Settings
+     * 
+     */
+    public function registerSettings()
+    {
+        return [
+
+            //OctoManage Settings
+            'octomanage'  => [
+                'label'       => 'OctoManage',
+                'description' => 'Settings of OctoManage Plguin',
+                'category'    => 'OctoManage',
+                'icon'        => 'icon-leaf',
+                'class'       => 'AWME\OctoManage\Models\OctoSettings',
+                'order'       => 410,
+                'permissions' => [ 'awme.octomanage.settings' ],
+                'keywords'    => 'octomanage, octo'
             ]
         ];
     }

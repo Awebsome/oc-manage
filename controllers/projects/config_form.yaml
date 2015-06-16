@@ -1,0 +1,32 @@
+# ===================================
+#  Form Behavior Config
+# ===================================
+
+# Record name
+name: Project
+
+# Model Form Field configuration
+form: $/awme/octomanage/models/project/fields.yaml
+
+# Model Class name
+modelClass: AWME\OctoManage\Models\Project
+
+# Default redirect location
+defaultRedirect: awme/octomanage/projects
+
+# Create page
+create:
+    title: Create Project
+    redirect: awme/octomanage/projects/update/:id
+    redirectClose: awme/octomanage/projects
+
+# Update page
+update:
+    title: Edit Project
+    redirect: awme/octomanage/projects
+    redirectClose: awme/octomanage/projects
+    form:  $/awme/octomanage/models/project/update_fields.yaml
+
+# Preview page
+preview:
+    title: Preview Project

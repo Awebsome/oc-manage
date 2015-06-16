@@ -1,0 +1,22 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+tabs:
+    fields:
+        octo_label:
+            tab: Customize
+            label: "Label Menu"
+            commentAbove: "Name that is displayed in the menu"
+            placeholder: "OctoManage"
+            default: "OctoManage"
+            required: true
+            span: left
+        projects_path:
+            tab: Projects
+            label: "Project Path"
+            commentAbove: "Folder where the clients are installed"
+            type: text
+            placeholder: "/srv/clients"
+            required: true
+            span: left
