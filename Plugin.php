@@ -19,6 +19,7 @@ class Plugin extends PluginBase
 
     public $require = [
         'AWME.Engine',
+        'AWME.Git',
     ];
 
     /**

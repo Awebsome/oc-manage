@@ -34,14 +34,14 @@ class Projects extends Controller
     public function onMakeIntallation(){
 
         $project = new Install;
-        if($project->makeFolder())
+          if($project->makeRepository())
             if($project->makeDatabase())
-                if($project->makeProject())
-                    if($project->makeConfigs())
-                        if($project->makeInstall())
-                            if($project->makeAjenti())
-                                Flash::success("Installation Complete");
-                            else Flash::error("An error has occurred in the installation process");
+             if($project->makeProject())
+              if($project->makeConfigs())
+               if($project->makeInstall())
+                if($project->makeAjenti())
+                    Flash::success("Installation Complete");
+                else Flash::error("An error has occurred in the installation process");
     }
 
     public function onMakeAjentiReload(){

@@ -21,23 +21,55 @@ use Illuminate\Support\ServiceProvider;
 use AWME\OctoManage\Models\Project;
 use AWME\OctoManage\Models\OctoSettings;
 
+use AWME\Git\Models\GitSettings;
+
+use AWME\Git\Classes\Bitbucket;
+use AWME\Git\Classes\Github;
+use AWME\Git\Classes\Gitlab;
+
 class Installer
 {
     public function __construct(){
 
         $this->project = Project::find(Request::input('Project.id'));
+        $this->Bitbucket = (object) GitSettings::get('bitbucket');
     }
-	/*
+	
+    /*
         Make Project folder.   
      */
-    public function makeFolder()
+    public function makeRepository()
     {
         $disk = Storage::disk('clients');
         if(!$disk->files(Request::input('Project.directory'))){
-            if($disk->makeDirectory(Request::input('Project.directory')))
-                return true;
+            if($disk->makeDirectory(Request::input('Project.directory'))){
+
+                $repo = new Bitbucket();
+                $repo->name         = Request::input('Project.name');
+                $repo->owner        = strtolower($this->Bitbucket->username);
+                $repo->repo_slug    = strtolower(str_replace('_','-', Request::input('Project.directory')));
+                $repo->is_private   = true;
+                $repo->fork_policy  = 'no_forks';
+                
+                $result = $repo->create();
+                                
+                if(!array_key_exists('error',json_decode($result)))
+                { 
+
+                    $git = new Bitbucket();
+                    $git->repo         = strtolower(str_replace('_','-', Request::input('Project.directory')));
+                    $git->owner        = strtolower($this->Bitbucket->username);
+                    $git->directory    = OctoSettings::get('projects_path').'/'.Request::input('Project.directory');
+                    $git->gitClone();
+
+                    return true;
+
+                }else Flash::warning($result);
+            }
+
         }else Flash::error('Project exists');
     }
+
     
     /**
      * [makeDatabase Create Database & user]
@@ -46,24 +78,21 @@ class Installer
     public function makeDatabase(){
         
         $disk = Storage::disk('clients');
+        $query = DB::connection('engine');
         
-        if(!$disk->files(Request::input('Project.directory')))
-        {   
-            $query = DB::connection('engine');
-            
-            if(!$query->table('user')->where('user', Request::input('Project.username'))->get()){
-                if(!$query->table('db')->where('db', Request::input('Project.database'))->get()){
-                    
-                    $query->statement("CREATE DATABASE IF NOT EXISTS ".Request::input('Project.database'));
-                    $query->statement("CREATE USER '".Request::input('Project.username')."'@'".Request::input('Project.host')."' IDENTIFIED BY '".Request::input('Project.password')."'");
-                    $query->statement("GRANT ALL PRIVILEGES ON `".Request::input('Project.database')."`.* TO '".Request::input('Project.username')."'@'".Request::input('Project.host')."'");
-                    
-                    return true;
+        #Valida inexistencia de Usuario y Database para el proyecto 
+        if(!$query->table('user')->where('user', Request::input('Project.username'))->get()){
+            if(!$query->table('db')->where('db', Request::input('Project.database'))->get()){
+                
+                # ~ Crear base de datos
+                $query->statement("CREATE DATABASE IF NOT EXISTS ".Request::input('Project.database'));
+                $query->statement("CREATE USER '".Request::input('Project.username')."'@'".Request::input('Project.host')."' IDENTIFIED BY '".Request::input('Project.password')."'");
+                $query->statement("GRANT ALL PRIVILEGES ON `".Request::input('Project.database')."`.* TO '".Request::input('Project.username')."'@'".Request::input('Project.host')."'");
+                
+                return true;
 
-                }else Flash::error("The database already exists");
-            }else Flash::error("The user from database already exists");
-
-        }else Flash::error('Project Exists, delete before install again');
+            }else Flash::error("The database already exists");
+        }else Flash::error("The user from database already exists");
     }
 
     /**
@@ -73,11 +102,16 @@ class Installer
 
         $disk = Storage::disk('clients');
         
-        if(!$disk->files(Request::input('Project.directory')))
+        #Comprueba inexistencia del proyecto
+        if(!$disk->exists(Request::input('Project.directory').'/composer.json'))
         {
+            
             $commands = [
                 'cd '.OctoSettings::get('projects_path').'/'.Request::input('Project.directory'),
-                'composer create-project october/october . dev-master',
+                'composer create-project october/october tmp-project dev-master',
+                'mv tmp-project/* .',
+                'mv tmp-project/.[^.]* .',
+                'rm -rf tmp-project',
                 'php artisan key:generate',
                 'chown -hR www-data:www-data .',
                 'chmod -R 777 storage'
@@ -143,7 +177,7 @@ class Installer
 
         $disk = Storage::disk('clients');
         
-        if($disk->files(Request::input('Project.directory')))
+        if($disk->exists(Request::input('Project.directory').'/composer.json'))
         {
             $commands = [
                 'cd '.OctoSettings::get('projects_path').'/'.Request::input('Project.directory'),
