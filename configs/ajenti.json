@@ -1,0 +1,66 @@
+{
+    "custom_conf_toplevel": "",
+    "name": "",
+    "maintenance_mode": false,
+    "ssl_key_path": "",
+    "locations": [
+        {
+            "custom_conf_override": false,
+            "path_append_pattern": false,
+            "pattern": "[^/]\\.php(/|$)",
+            "custom_conf": "",
+            "path": "",
+            "match": "regex",
+            "backend": {
+                "type": "php-fcgi",
+                "params": {
+                    "pm": "dynamic",
+                    "php_admin_values": "open_basedir = none;",
+                    "php_flags": ""
+                }
+            }
+        }
+    ],
+    "domains": [
+        {
+            "domain": ""
+        }
+    ],
+    "extensions": {
+        "ajenti.plugins.vh.processes.ProcessesExtension": {
+            "processes": []
+        },
+        "ajenti.plugins.vh-pureftpd.pureftpd.PureFTPDExtension": {
+            "username": "",
+            "password": "",
+            "created": false
+        },
+        "ajenti.plugins.vh-mysql.mysql.MySQLExtension": {
+            "users": [
+                {
+                    "password": "",
+                    "name": ""
+                }
+            ],
+            "databases": [
+                {
+                    "name": ""
+                }
+            ]
+        }
+    },
+    "custom_conf": "location / {\n    try_files $uri $uri/ /index.php$is_args$args;\n}\n\nrewrite ^themes/.*/(layouts|pages|partials)/.*.htm /index.php break;\nrewrite ^bootstrap/.* /index.php break;\nrewrite ^config/.* /index.php break;\nrewrite ^vendor/.* /index.php break;\nrewrite ^storage/cms/.* /index.php break;\nrewrite ^storage/logs/.* /index.php break;\nrewrite ^storage/framework/.* /index.php break;\nrewrite ^storage/temp/protected/.* /index.php break;\nrewrite ^storage/app/uploads/protected/.* /index.php break;",
+    "owner": "root",
+    "enabled": true,
+    "root": "",
+    "ports": [
+        {
+            "spdy": false,
+            "ssl": false,
+            "host": "*",
+            "port": 80,
+            "default": false
+        }
+    ],
+    "ssl_cert_path": ""
+}
