@@ -13,6 +13,8 @@
     function onSuccessInstall(){
         $('#makeInstall').attr('disabled','true');
         $('#makeAjentiReload').removeAttr("disabled");
+        $('#goFrontend').removeAttr("disabled");
+        $('#goBackend').removeAttr("disabled");
     }
 </script>
 
@@ -21,6 +23,14 @@
     <?= Form::open(['class' => 'layout']) ?>
 
         <div class="layout-row">
+            <div class="submenu pull-right">
+                <a id="goFrontend" target="_blank" href="http://<?=str_replace('*', $formModel->slug_domain, $slug_domain)?>" class="btn btn-info" <?=($formModel->is_installed) ? '' : 'disabled'?>>
+                    <i class="icon-crosshairs"></i> Frontend
+                </a>
+                <a id="goBackend" target="_blank" href="http://<?=str_replace('*', $formModel->slug_domain, $slug_domain)?>/backend" class="btn btn-primary" <?=($formModel->is_installed) ? '' : 'disabled'?>>
+                    <i class="icon-leaf"></i> Backend
+                </a>
+            </div>
             <?= $this->formRender() ?>
         </div>
 

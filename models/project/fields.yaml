@@ -12,13 +12,15 @@ fields:
         required: true
         attributes:
                 maxlength: "45"
-    company:
-        label: Company
-        span: auto
-        required: true
-        type: text
-        attributes:
-                maxlength: "45"
+    slug_domain:
+            tab: Installation
+            label: Preview Slug-Domain
+            placeholder: "slug-domain.domain.com"
+            span: auto
+            preset:
+                field: name
+                type: slug
+            required: true
 
 tabs:
     fields:

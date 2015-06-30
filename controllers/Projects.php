@@ -4,8 +4,10 @@ use Flash;
 use Request;
 use BackendMenu;
 use Backend\Classes\Controller;
+
 use AWME\OctoManage\Classes\Installer as Install;
 use AWME\OctoManage\Models\Project;
+use AWME\OctoManage\Models\OctoSettings;
 
 use Storage;
 use League\Flysystem\Filesystem;
@@ -60,5 +62,17 @@ class Projects extends Controller
             if($install->delete())
                 Flash::success("The project has been deleted successfully");
         }else Flash::error("Error 404 Project not exists"); 
+    }
+
+    public function update($recordId = null, $context = null)
+    {
+        $this->vars['slug_domain'] = OctoSettings::get('slug_domain');
+
+        $this->asExtension('FormController')->update($recordId, $context);
+    }
+    
+    public function password($recordId = null){
+
+        return $recordId;
     }
 }

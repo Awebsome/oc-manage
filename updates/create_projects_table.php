@@ -14,6 +14,7 @@ class CreateProjectsTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('company');
+            $table->string('slug_domain');
             $table->string('domains');
             $table->string('theme');
             $table->string('git');

@@ -4,19 +4,42 @@
 
 tabs:
     fields:
-        octo_label:
-            tab: Customize
-            label: "Label Menu"
-            commentAbove: "Name that is displayed in the menu"
-            placeholder: "OctoManage"
-            default: "OctoManage"
-            required: true
+    # Tab: Projects
+        backend_username:
+            tab: Projects
+            label: User
+            commentAbove: October Backend Default Username
             span: left
+            required: true
+        slug_domain:
+            tab: Projects
+            label: "Default Domain"
+            commentAbove: "This domain is used to generate a previous url to the domain of production"
+            type: text
+            placeholder: "*.domain.com"
+            required: true
+            span: right
+        backend_password:
+            tab: Projects
+            label: Password
+            commentAbove: October Backend Default Password
+            span: left
+            required: true
         projects_path:
             tab: Projects
             label: "Project Path"
             commentAbove: "Folder where the clients are installed"
             type: text
             placeholder: "/srv/clients"
+            required: true
+            span: right
+
+    #Tab: Customize
+        octo_label:
+            tab: Customize
+            label: "Label Menu"
+            commentAbove: "Name that is displayed in the menu"
+            placeholder: "OctoManage"
+            default: "OctoManage"
             required: true
             span: left

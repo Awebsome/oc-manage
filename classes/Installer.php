@@ -1,7 +1,7 @@
 <?php namespace AWME\OctoManage\Classes;
 
 /**
-* Shell Console helpers. 
+* Project Installer 
 */
 
 use Flash;
@@ -226,10 +226,11 @@ class Installer
             Config::set('ajenti.maintenance_mode', Request::input('Project.maintenance', false));
 
             #Websites > Site > Domains
-            foreach (explode('|', Request::input('Project.domains')) as $key => $domain) {
-                $domains[$key]['domain'] = $domain;
+            $domains = str_replace('*', Request::input('Project.slug_domain', $this->project->slug_domain), OctoSettings::get('slug_domain')).'|'.Request::input('Project.domains');
+            foreach (explode('|', $domains) as $key => $domain) {
+                $ajenti_domains[$key]['domain'] = $domain;
             }
-            Config::set('ajenti.domains', $domains);
+            Config::set('ajenti.domains', $ajenti_domains);
 
             Config::set('ajenti.enabled', Request::input('Project.enabled', true));
             Config::set('ajenti.root', OctoSettings::get('projects_path').'/'.Request::input('Project.directory'));
@@ -282,6 +283,8 @@ class Installer
      */
     public function makeAjentiReload(){
 
+        self::makeAjenti();
+
         # Open client ajenti.json
         $disk = Storage::disk('clients');
         
@@ -300,7 +303,7 @@ class Installer
                 'sudo service nginx restart'
             ];
 
-            Flash::success($ajenti_path);
+            Flash::success("Ajenti is reloaded successfully");
             
             SSH::run($commands);
 

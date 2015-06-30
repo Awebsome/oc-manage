@@ -13,11 +13,11 @@ fields:
         disabled: true
         attributes:
                 maxlength: "45"
-    company:
-        label: Company
+    slug_domain:
+        label: SlugDomain
         span: auto
         required: true
-        type: text
+        disabled: true
         attributes:
                 maxlength: "45"
 
