@@ -89,6 +89,7 @@ class Installer
                 $query->statement("CREATE USER '".Request::input('Project.username')."'@'".Request::input('Project.host')."' IDENTIFIED BY '".Request::input('Project.password')."'");
                 $query->statement("GRANT ALL PRIVILEGES ON `".Request::input('Project.database')."`.* TO '".Request::input('Project.username')."'@'".Request::input('Project.host')."'");
                 
+                DB::disconnect('engine');
                 return true;
 
             }else Flash::error("The database already exists");
@@ -171,7 +172,9 @@ class Installer
     }
 
     /**
-     * [makeInstall composer create project]
+     * Make Install
+     *
+     * Install project
      */
     public function makeInstall(){
 
@@ -190,7 +193,9 @@ class Installer
             if($project){
                 $project->is_installed = 1;
                 $project->save();
+
                 return true;
+
             }else Flash::error("The project does not exist in the db, or is not accessible");
 
         }else Flash::error('Project Does not exists for make install');
@@ -345,6 +350,8 @@ class Installer
         if(Project::find($this->project->id)){
             $project = Project::find($this->project->id);
             $project->delete();
+
+            DB::disconnect('engine');
             return true;
         }else Flash::error("The Project could not be removed");
     }

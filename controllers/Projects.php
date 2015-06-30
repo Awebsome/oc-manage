@@ -6,6 +6,7 @@ use BackendMenu;
 use Backend\Classes\Controller;
 
 use AWME\OctoManage\Classes\Installer as Install;
+use AWME\OctoManage\Classes\Manage;
 use AWME\OctoManage\Models\Project;
 use AWME\OctoManage\Models\OctoSettings;
 
@@ -44,6 +45,11 @@ class Projects extends Controller
                 if($project->makeAjenti())
                     Flash::success("Installation Complete");
                 else Flash::error("An error has occurred in the installation process");
+
+        # Manage Set Admin Account
+        $manage = new Manage;
+        $manage->setPassword();
+
     }
 
     public function onMakeAjentiReload(){
@@ -71,8 +77,11 @@ class Projects extends Controller
         $this->asExtension('FormController')->update($recordId, $context);
     }
     
-    public function password($recordId = null){
+    public function manage($recordId = null, $context = null)
+    {
+        //$this->vars['recordId'] = $recordId;
+        $this->vars['slug_domain'] = OctoSettings::get('slug_domain');
 
-        return $recordId;
+        $this->asExtension('FormController')->update($recordId, $context);
     }
 }

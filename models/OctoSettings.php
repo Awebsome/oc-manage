@@ -20,11 +20,17 @@ class OctoSettings extends Model
     use \October\Rain\Database\Traits\Validation;
 
     public $rules = [
-        'backend_username'	=> 'required|between:4,16|alpha_dash',
-        'backend_password'  => 'required|between:4,16',
-        'slug_domain'	=> 'required',
-
-        'projects_path'	=> 'required',
+        #OctoManage Configs
         'octo_label'	=> 'required',
+        'slug_domain'   => 'required',
+        'projects_path' => 'required',
+
+        #Project Admin Acccount Configs
+        'backend_first_name' => 'required|between:4,16',
+        'backend_last_name' => 'required|between:4,16',
+        'backend_email' => 'required|email|between:4,64',
+
+        'backend_login' => 'required|between:4,16|alpha_dash',
+        'backend_password'  => 'required|between:4,16',
     ];
 }
