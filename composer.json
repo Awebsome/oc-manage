@@ -1,0 +1,14 @@
+{
+    "name": "awme/octomanage",
+    "description": "Self-hosted open source manager for maintaining your OctoberCMS sites from one location.",
+    "homepage": "http://awebsome.me",
+    "authors": [
+        {
+            "name": "LucasZdv",
+            "email": "lucaszdv@awebsome.me"
+        }
+    ],
+    "require": {
+        "laravelcollective/remote": "~5.0"
+    }
+}
