@@ -9,17 +9,13 @@ fields:
     name:
         label: Name
         span: auto
-        required: true
         disabled: true
-        attributes:
-                maxlength: "45"
+
     slug_domain:
-        label: SlugDomain
+        tab: Installation
+        label: Preview Slug-Domain
         span: auto
-        required: true
         disabled: true
-        attributes:
-                maxlength: "45"
 
 tabs:
     fields:
@@ -60,10 +56,56 @@ tabs:
                 user: RainLab.User
                 blog: RainLab.Blog
                 slider: RainLab.Slider
-        host:
+
+    #FTP Configs
+        ftp_login:
+            tab: FTP
+            label: User
+            span: auto
+            required: true
+            placeholder: ftp_username
+            preset:
+                field: name
+                type: slug
+            attributes:
+                maxlength: "16"
+        ftp_password:
+            tab: FTP
+            label: Password
+            span: auto
+            required: true
+            preset:
+                field: password
+            attributes:
+                maxlength: "16"
+        directory:
+            tab: FTP
+            label: Directory
+            span: auto
+            placeholder: name_directory
+            required: true
+            preset:
+                field: name
+                type: slug
+            attributes:
+                maxlength: "16"
+
+    #Database
+        db_username:
             tab: Database
-            label: Host
-            default: localhost
+            label: User
+            span: auto
+            required: true
+            maxlength: '16'
+            placeholder: database_username
+            preset:
+                field: name
+                type: slug
+            attributes:
+                maxlength: "16"
+        db_password:
+            tab: Database
+            label: Password
             span: auto
             required: true
             attributes:
@@ -73,64 +115,9 @@ tabs:
             label: Database
             span: auto
             required: true
-            placeholder: awme_database
-            attributes:
-                maxlength: "16"
-        username:
-            tab: Database
-            label: User
-            span: auto
-            required: true
-            maxlength: '16'
-            placeholder: awme_username
+            placeholder: database_name
             preset:
-                field: database
-                type: slug
-            attributes:
-                maxlength: "16"
-        password:
-            tab: Database
-            label: Password
-            span: auto
-            required: true
-            attributes:
-                maxlength: "16"
-        ftphost:
-            tab: Ftp
-            label: Host
-            default: awebsome.me
-            span: auto
-            required: true
-            attributes:
-                maxlength: "16"
-        directory:
-            tab: Ftp
-            label: Directory
-            span: auto
-            placeholder: awme_directory_name
-            required: true
-            preset:
-                field: database
-                type: slug
-            attributes:
-                maxlength: "16"
-        ftpuser:
-            tab: Ftp
-            label: User
-            span: auto
-            required: true
-            placeholder: awme_username
-            preset:
-                field: database
-                type: slug
-            attributes:
-                maxlength: "16"
-        ftppsw:
-            tab: Ftp
-            label: Password
-            span: auto
-            required: true
-            preset:
-                field: password
+                field: name
+                type: camel
             attributes:
                 maxlength: "16"

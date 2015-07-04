@@ -12,6 +12,8 @@ class CreateProjectsTable extends Migration
         {
             $table->engine = 'InnoDB';
             $table->increments('id');
+            
+            #Installation
             $table->string('name');
             $table->string('company');
             $table->string('slug_domain');
@@ -20,13 +22,17 @@ class CreateProjectsTable extends Migration
             $table->string('git');
             $table->string('plugins');
             $table->string('host');
+            
+            #Database Configs
             $table->string('database');
-            $table->string('username');
-            $table->string('password');
-            $table->string('ftphost');
+            $table->string('db_username');
+            $table->string('db_password');
+
+            #FTP Configs
+            $table->string('ftp_login');
+            $table->string('ftp_password');
             $table->string('directory');
-            $table->string('ftpuser');
-            $table->string('ftppsw');
+            
             $table->boolean('is_installed');
             $table->timestamps();
         });

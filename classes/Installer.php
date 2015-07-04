@@ -20,6 +20,7 @@ use Illuminate\Support\ServiceProvider;
 
 use AWME\OctoManage\Models\Project;
 use AWME\OctoManage\Models\OctoSettings;
+use AWME\Engine\Models\EngineSettings;
 
 use AWME\Git\Models\GitSettings;
 
@@ -31,8 +32,29 @@ class Installer
 {
     public function __construct(){
 
-        $this->project = Project::find(Request::input('Project.id'));
+        /*
+            Attrs from Project Model
+         */
+        $this->Project = Project::find(Request::input('Project.id'));
+        
         $this->Bitbucket = (object) GitSettings::get('bitbucket');
+        
+        /**
+         * Project Attrs
+         * @var result
+         */
+        $this->project = (object) Request::input('Project');
+
+        /**
+         * Attribute changes
+         */
+        $this->project->name_prefixed = str_replace(':id', $this->Project->id, OctoSettings::get('name_prefix')).': '.$this->Project->name;
+        $this->project->enabled = Request::input('Project.enabled', true);
+        $this->project->maintenance = Request::input('Project.maintenance', false);
+
+        $this->project->database = OctoSettings::get('db_prefix').Request::input('Project.database');
+        $this->project->db_host = Request::input('Project.db_host', 'localhost');
+
     }
 	
     /*
@@ -41,13 +63,13 @@ class Installer
     public function makeRepository()
     {
         $disk = Storage::disk('clients');
-        if(!$disk->files(Request::input('Project.directory'))){
-            if($disk->makeDirectory(Request::input('Project.directory'))){
+        if(!$disk->files($this->project->directory)){
+            if($disk->makeDirectory($this->project->directory)){
 
                 $repo = new Bitbucket();
-                $repo->name         = Request::input('Project.name');
+                $repo->name         = $this->project->name_prefixed;
                 $repo->owner        = strtolower($this->Bitbucket->username);
-                $repo->repo_slug    = strtolower(str_replace('_','-', Request::input('Project.directory')));
+                $repo->repo_slug    = strtolower(str_replace('_','-', $this->project->directory));
                 $repo->is_private   = true;
                 $repo->fork_policy  = 'no_forks';
                 
@@ -57,9 +79,9 @@ class Installer
                 { 
 
                     $git = new Bitbucket();
-                    $git->repo         = strtolower(str_replace('_','-', Request::input('Project.directory')));
+                    $git->repo         = strtolower(str_replace('_','-', $this->project->directory));
                     $git->owner        = strtolower($this->Bitbucket->username);
-                    $git->directory    = OctoSettings::get('projects_path').'/'.Request::input('Project.directory');
+                    $git->directory    = OctoSettings::get('projects_path').'/'.$this->project->directory;
                     $git->gitClone();
 
                     return true;
@@ -81,13 +103,13 @@ class Installer
         $query = DB::connection('engine');
         
         #Valida inexistencia de Usuario y Database para el proyecto 
-        if(!$query->table('user')->where('user', Request::input('Project.username'))->get()){
-            if(!$query->table('db')->where('db', Request::input('Project.database'))->get()){
+        if(!$query->table('user')->where('user', $this->project->db_username)->get()){
+            if(!$query->table('db')->where('db', $this->project->database)->get()){
                 
                 # ~ Crear base de datos
-                $query->statement("CREATE DATABASE IF NOT EXISTS ".Request::input('Project.database'));
-                $query->statement("CREATE USER '".Request::input('Project.username')."'@'".Request::input('Project.host')."' IDENTIFIED BY '".Request::input('Project.password')."'");
-                $query->statement("GRANT ALL PRIVILEGES ON `".Request::input('Project.database')."`.* TO '".Request::input('Project.username')."'@'".Request::input('Project.host')."'");
+                $query->statement("CREATE DATABASE IF NOT EXISTS ".$this->project->database);
+                $query->statement("CREATE USER '".$this->project->db_username."'@'".$this->project->db_host."' IDENTIFIED BY '".$this->project->db_password."'");
+                $query->statement("GRANT ALL PRIVILEGES ON `".$this->project->database."`.* TO '".$this->project->db_username."'@'".$this->project->db_host."'");
                 
                 DB::disconnect('engine');
                 return true;
@@ -104,11 +126,11 @@ class Installer
         $disk = Storage::disk('clients');
         
         #Comprueba inexistencia del proyecto
-        if(!$disk->exists(Request::input('Project.directory').'/composer.json'))
+        if(!$disk->exists($this->project->directory.'/composer.json'))
         {
             
             $commands = [
-                'cd '.OctoSettings::get('projects_path').'/'.Request::input('Project.directory'),
+                'cd '.OctoSettings::get('projects_path').'/'.$this->project->directory,
                 'composer create-project october/october tmp-project dev-master',
                 'mv tmp-project/* .',
                 'mv tmp-project/.[^.]* .',
@@ -130,7 +152,7 @@ class Installer
     public function makeConfigs(){
 
         $disk = Storage::disk('clients');
-        $conf_path = Request::input('Project.directory').'/config';
+        $conf_path = $this->project->directory.'/config';
 
         if($disk->files($conf_path))
         {
@@ -152,14 +174,14 @@ class Installer
                 ];
 
                 $NewConfig = [
-                    'host'       => "'host'      => '".Request::input('Project.host','localhost')."',",
-                    'port'       => "'port'      => '".Request::input('Project.port','')."',",
-                    'database'   => "'database'  => '".Request::input('Project.database')."',",
-                    'username'   => "'username'  => '".Request::input('Project.username')."',",
-                    'password'   => "'password'  => '".Request::input('Project.password')."',",
-                    'charset'    => "'charset'   => '".Request::input('Project.charset','utf8')."',",
-                    'collation'  => "'collation' => '".Request::input('Project.collation','utf8_unicode_ci')."',",
-                    'prefix'     => "'prefix'    => '".Request::input('Project.prefix','')."',",
+                    'host'       => "'host'      => '".$this->project->db_host."',",
+                    'port'       => "'port'      => '".EngineSettings::get('port')."',",
+                    'database'   => "'database'  => '".$this->project->database."',",
+                    'username'   => "'username'  => '".$this->project->db_username."',",
+                    'password'   => "'password'  => '".$this->project->db_password."',",
+                    'charset'    => "'charset'   => '".EngineSettings::get('charset','utf8')."',",
+                    'collation'  => "'collation' => '".EngineSettings::get('collation','utf8_unicode_ci')."',",
+                    'prefix'     => "'prefix'    => '".EngineSettings::get('prefix','')."',",
                 ];
 
                 $config_contents = preg_replace($OldConfig, $NewConfig, $configs);
@@ -180,16 +202,16 @@ class Installer
 
         $disk = Storage::disk('clients');
         
-        if($disk->exists(Request::input('Project.directory').'/composer.json'))
+        if($disk->exists($this->project->directory.'/composer.json'))
         {
             $commands = [
-                'cd '.OctoSettings::get('projects_path').'/'.Request::input('Project.directory'),
+                'cd '.OctoSettings::get('projects_path').'/'.$this->project->directory,
                 'php artisan october:up'
             ];
 
             SSH::run($commands);
 
-            $project = Project::find($this->project->id);
+            $project = Project::find($this->Project->id);
             if($project){
                 $project->is_installed = 1;
                 $project->save();
@@ -225,20 +247,20 @@ class Installer
             Config::set('ajenti', get_object_vars(json_decode($disk->get($ajentiJson))));
 
             #Websites > Site > General > Name
-            Config::set('ajenti.name', Request::input('Project.name', $this->project->name));
+            Config::set('ajenti.name', $this->project->name_prefixed);
 
             #Websites > Site > General > Maintenace Mode (true, false)
-            Config::set('ajenti.maintenance_mode', Request::input('Project.maintenance', false));
+            Config::set('ajenti.maintenance_mode', $this->project->maintenance);
 
             #Websites > Site > Domains
-            $domains = str_replace('*', Request::input('Project.slug_domain', $this->project->slug_domain), OctoSettings::get('slug_domain')).'|'.Request::input('Project.domains');
+            $domains = str_replace('*', $this->Project->slug_domain, OctoSettings::get('slug_domain')).'|'.$this->project->domains;
             foreach (explode('|', $domains) as $key => $domain) {
                 $ajenti_domains[$key]['domain'] = $domain;
             }
             Config::set('ajenti.domains', $ajenti_domains);
 
-            Config::set('ajenti.enabled', Request::input('Project.enabled', true));
-            Config::set('ajenti.root', OctoSettings::get('projects_path').'/'.Request::input('Project.directory'));
+            Config::set('ajenti.enabled', $this->project->enabled);
+            Config::set('ajenti.root', OctoSettings::get('projects_path').'/'.$this->project->directory);
            
 
             #Websites > Site > Ftp
@@ -247,20 +269,20 @@ class Installer
                                 'processes' => [],
                     ],
                 'ajenti.plugins.vh-pureftpd.pureftpd.PureFTPDExtension' => [
-                                'username' => Request::input('Project.ftpuser'),
-                                'password' => Request::input('Project.ftppsw'),
+                                'username' => $this->project->ftp_login,
+                                'password' => $this->project->ftp_password,
                                 'created' => true,
                     ],
                 'ajenti.plugins.vh-mysql.mysql.MySQLExtension' =>[
                     'users' => [
                         [
-                            'password' => Request::input('Project.password'),
-                            'name'     => Request::input('Project.username'),
+                            'password' => $this->project->db_password,
+                            'name'     => $this->project->db_username,
                         ]
                     ],
                     'databases' => [
                         [
-                            'name'  => Request::input('Project.database'),
+                            'name'  => $this->project->database,
                         ]
                     ]
                 ]
@@ -273,7 +295,7 @@ class Installer
             $disk = Storage::disk('clients');
 
             # project/config folder
-            $conf_path = Request::input('Project.directory').'/config';
+            $conf_path = $this->project->directory.'/config';
 
             if($disk->put($conf_path.'/ajenti.json', $ajentiContents))
                return true;
@@ -294,7 +316,7 @@ class Installer
         $disk = Storage::disk('clients');
         
         # project/config folder
-        $conf_path = Request::input('Project.directory').'/config';
+        $conf_path = $this->project->directory.'/config';
         
         # projects_path/project/config/ajenti.json client file
         $ajenti_path = OctoSettings::get('projects_path').'/'.$conf_path.'/ajenti.json';
@@ -325,10 +347,10 @@ class Installer
         /**
          * Project Files Delete
          */
-        if(is_dir(OctoSettings::get('projects_path').'/'.Request::input('Project.directory'))){
+        if(is_dir(OctoSettings::get('projects_path').'/'.$this->project->directory)){
             $commands = [
                 'cd '.OctoSettings::get('projects_path'),
-                'rm -rf '.Request::input('Project.directory'),
+                'rm -rf '.$this->project->directory,
             ];
 
             SSH::run($commands);
@@ -339,16 +361,16 @@ class Installer
          */
         $query = DB::connection('engine');
 
-        if(!$query->statement("DROP DATABASE IF EXISTS ".Request::input('Project.database')))
+        if(!$query->statement("DROP DATABASE IF EXISTS ".$this->project->database))
             Flash::info("The database could not be removed");
 
-        if($query->table('user')->where('user', Request::input('Project.username'))->get()){
-            if(!$query->statement("DROP USER '".Request::input('Project.username')."'@'".Request::input('Project.host')."'"))
+        if($query->table('user')->where('user', $this->project->db_username)->get()){
+            if(!$query->statement("DROP USER '".$this->project->db_username."'@'".$this->project->db_host."'"))
                Flash::info("The User of database could not be removed");
         }
 
-        if(Project::find($this->project->id)){
-            $project = Project::find($this->project->id);
+        if($this->Project){
+            $project = Project::find($this->Project->id);
             $project->delete();
 
             DB::disconnect('engine');

@@ -1,0 +1,85 @@
+<?php Block::put('breadcrumb') ?>
+    <ul>
+        <li><a href="<?= Backend::url('awme/octomanage/projects') ?>">Projects</a></li>
+        <li><?= e($this->pageTitle) ?></li>
+    </ul>
+<?php Block::endPut() ?>
+
+<script>
+    function onSuccess(){
+        $('.showSweetAlert h4').text("Ajenti Reloaded");
+    }
+
+    function onSuccessInstall(){
+        $('#makeInstall').attr('disabled','true');
+        $('#makeAjentiReload').removeAttr("disabled");
+        $('#goFrontend').removeAttr("disabled");
+        $('#goBackend').removeAttr("disabled");
+    }
+</script>
+
+<?php if (!$this->fatalError): ?>
+
+    <?= Form::open(['class' => 'layout']) ?>
+
+        <div class="layout-row">
+            <div class="submenu pull-right">
+                <a id="goFrontend" target="_blank" href="http://<?=str_replace('*', $formModel->slug_domain, $slug_domain)?>" class="btn btn-info" <?=($formModel->is_installed) ? '' : 'disabled'?>>
+                    <i class="icon-crosshairs"></i> Frontend
+                </a>
+                <a id="goBackend" target="_blank" href="http://<?=str_replace('*', $formModel->slug_domain, $slug_domain)?>/backend" class="btn btn-primary" <?=($formModel->is_installed) ? '' : 'disabled'?>>
+                    <i class="icon-leaf"></i> Backend
+                </a>
+            </div>
+            <?= $this->formRender() ?>
+        </div>
+
+        <div class="form-buttons">
+            <div class="loading-indicator-container">
+                
+                <button
+                    type="button"
+                    class="oc-icon-trash-o btn-icon danger pull-right"
+                    data-request="onMakeDelete"
+                    data-load-indicator="Deleting Project..."
+                    data-request-redirect="<?=Backend::url('awme/octomanage/projects')?>"
+                    data-request-confirm="Do you really want to delete this project?">
+                </button>
+                <button
+                    id="makeInstall"
+                    type="submit"
+                    data-request="onMakeIntallation"
+                    data-request-data="redirect:1"
+                    data-load-indicator="Make Installation..."
+                    data-request-confirm="Quieres realizar una instalación?"
+                    data-request-success="onSuccessInstall();"
+                    class="btn btn-success pull-right" 
+                    <?=($formModel->is_installed) ? 'disabled' : ''?>
+                    ><i class="icon icon-cogs"></i> 
+                    <?=($formModel->is_installed) ? 'It is installed' : 'Make Installation'?>
+                </button>
+
+                <button
+                    id="makeAjentiReload"
+                    type="submit"
+                    data-request="onMakeAjentiReload"
+                    data-load-indicator="Ajenti reload..."
+                    data-request-confirm="Ajenti Reaload?"
+                    data-request-complete="onSuccess();"
+                    class="btn btn-warning pull-right"
+                    <?=(!$formModel->is_installed) ? 'disabled' : ''?>
+                    ><i class="icon icon-cogs"></i> 
+                    Ajenti Reload
+                </button>
+                
+            </div>
+        </div>
+
+    <?= Form::close() ?>
+
+<?php else: ?>
+
+    <p class="flash-message static error"><?= e($this->fatalError) ?></p>
+    <p><a href="<?= Backend::url('awme/octomanage/projects') ?>" class="btn btn-default">Return to projects list</a></p>
+
+<?php endif ?>

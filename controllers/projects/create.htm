@@ -20,9 +20,13 @@
     }
 
     $(document).ready(function(){
-        $( "#Form-field-Project-password" ).click(function() {
-            $("#Form-field-Project-password").val(randPassword());
-            $("#Form-field-Project-ftppsw").val($("#Form-field-Project-password").val());
+        $( "#Form-field-Project-name" ).focus(function() {
+            var ftp_password = $("#Form-field-Project-ftp_password").val();
+            if(ftp_password == "")
+            {
+                $("#Form-field-Project-ftp_password").val(randPassword());
+                $("#Form-field-Project-db_password").val($("#Form-field-Project-ftp_password").val());
+            }
         });
     });
 </script>

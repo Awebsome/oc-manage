@@ -17,7 +17,7 @@ class Manage
 {
 	public function __construct(){
 
-        $this->project = Project::find(Request::input('Project.id'));
+        $this->Project = Project::find(Request::input('Project.id'));
     }
 
 	/*
@@ -26,7 +26,7 @@ class Manage
 	public function setPassword(){
         
         # Set Project Database.
-        Config::set('database.connections.engine.database', Request::input('Project.database'));
+        Config::set('database.connections.engine.database', OctoSettings::get('db_prefix').$this->Project->database);
         
         $database = DB::connection('engine');
         

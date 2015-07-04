@@ -28,7 +28,27 @@ tabs:
             type: text
             placeholder: "/srv/clients"
             required: true
-            span: right
+            span: left
+        name_prefix:
+            tab: OctoManage
+            label: "Project Name Prefix"
+            commentAbove: "Prefix used in the name of git and ajenti, use :id for include the client id"
+            type: text
+            placeholder: "Client :id"
+            required: true
+            span: left
+            attributes:
+                maxlength: "6"
+        db_prefix:
+            tab: OctoManage
+            label: "Database Name Prefix"
+            commentAbove: "Prefix used in the name of the database"
+            type: text
+            placeholder: "prefix_"
+            required: true
+            span: left
+            attributes:
+                maxlength: "6"
 
     # Tab: Projects
         backend_first_name:
