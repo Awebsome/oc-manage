@@ -206,7 +206,9 @@ class Installer
         {
             $commands = [
                 'cd '.OctoSettings::get('projects_path').'/'.$this->project->directory,
-                'php artisan october:up'
+                'php artisan october:up',
+                'chown -hR www-data:www-data .',
+                'chmod -R 777 storage'
             ];
 
             SSH::run($commands);
